@@ -1,0 +1,73 @@
+@html.extend('layout', function(model) { @html.block('content', function(model) {
+<h1>@model.title</h1>
+<p>
+  <a href="cadastro" class="btn btn-primary">Novo cadastro</a>
+</p>
+@if (model.pessoas && model.pessoas.length > 0) {
+<table class="table">
+  <thead>
+    <tr>
+      <th>Código</th>
+      <th>Nome</th>
+      <th>Telefone</th>
+      <th>CPF</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @model.pessoas.forEach(function(item){
+    <tr>
+      <td>@item.id</td>
+      <td>@item.nome</td>
+      <td>@item.telefone</td>
+      <td>@item.cpf</td>
+      <td>
+        <a href="cadastro/@item.id" class="btn btn-info">
+          <span class="oi oi-pencil" title="Pencil Icon" aria-hidden="true"></span>
+        </a>
+        <button onclick="del('@item.id', '@item.nome')" class="btn btn-info">
+          <span class="oi oi-trash" title="trash Icon" aria-hidden="true"></span>
+        </button>
+      </td>
+    </tr>
+    })
+  </tbody>
+</table>
+} else {
+<h2>Nenhum registro encontrado</h2>
+} }) @html.append('scriptsjs', function(){
+<script src="/javascripts/validate-options.js"></script>
+<script>
+  function del(id, nome) {
+    var confirmacao = confirm(`Tem certeza que deseja excluir a pessoa de nome ${nome}?`)
+    if (confirmacao) {
+      var form = new FormData()
+      form.append('json', JSON.stringify({
+        id: id
+      }))
+      var headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      }
+      fetch('/pessoas/delete', {
+          method: 'POST',
+          headers: headers,
+          credentials: "same-origin",
+          body: JSON.stringify({
+            id: id
+          })
+        })
+        .then(function (r) {
+          return r.json()
+        })
+        .then(function (result) {
+          if (result && !result.err) {
+            location.href = location.href
+          } else {
+            alert(result.err)
+          }
+        })
+    }
+  }
+</script>
+}) })
